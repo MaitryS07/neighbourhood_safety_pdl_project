@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Neighbourhood Safety{% endblock %}
+
+{% block content %}
+<div class="members-container">
+    <div style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 8rem; font-weight: bold; color: #e74c3c; margin-bottom: 1rem;">
+            500
+        </div>
+        <h1 style="font-size: 2rem; color: #2c3e50; margin-bottom: 1rem;">
+            Internal Server Error
+        </h1>
+        <p style="color: #7f8c8d; font-size: 1.1rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Something went wrong on our end. Our team has been notified and is working to fix the issue.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button onclick="location.reload()" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> Try Again
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Go Home
+            </a>
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin() %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('resident.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> Resident Dashboard
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
