@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Neighbourhood Safety{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .auth-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .auth-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .auth-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input.error {
+        border-color: #e74c3c;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .form-checkbox input {
+        margin-right: 0.5rem;
+    }
+
+    .form-checkbox label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .auth-footer {
+        padding: 1.5rem 2rem;
+        background: #f8f9fa;
+        text-align: center;
+        border-top: 1px solid #e1e5e9;
+    }
+
+    .auth-footer p {
+        margin: 0;
+        color: #666;
+    }
+
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 2rem;
+        color: #666;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: #667eea;
+    }
+
+    @media (max-width: 480px) {
+        .auth-container {
+            padding: 1rem;
+        }
+
+        .auth-header {
+            padding: 1.5rem;
+        }
+
+        .auth-body {
+            padding: 1.5rem;
+        }
+
+        .auth-footer {
+            padding: 1rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><i class="fas fa-shield-alt"></i> Neighbourhood Safety</h1>
+            <p>Sign in to your account</p>
+        </div>
+
+        <div class="auth-body">
+            <form id="login-form" method="POST">
+                {{ csrf_token() }}
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-input"
+                        value="{{ email or '' }}"
+                        required
+                        autocomplete="email"
+                        placeholder="Enter your email address"
+                    >
+                    <div class="error-message" id="email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        required
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                    >
+                    <div class="error-message" id="password-error"></div>
+                </div>
+
+                <div class="form-checkbox">
+                    <input type="checkbox" id="remember" name="remember" {{ 'checked' if remember else '' }}>
+                    <label for="remember">Remember me for 24 hours</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <p>
+                Don't have an account?
+                <a href="{{ url_for('auth.signup') }}">Sign up here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<a href="{{ url_for('index') }}" class="back-link">
+    <i class="fas fa-arrow-left"></i> Back to Home
+</a>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    // Clear any previous error messages
+    clearErrors();
+
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        clearErrors();
+
+        // Validate form
+        if (!validateForm()) {
+            return;
+        }
+
+        // Show loading state
+        setLoading(true);
+
+        // Prepare form data
+        const formData = new FormData(loginForm);
+        const data = {
+            email: formData.get('email').trim(),
+            password: formData.get('password'),
+            remember: formData.has('remember')
+        };
+
+        // Send login request
+        fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrf_token]').value
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            setLoading(false);
+
+            if (data.success) {
+                // Show success message
+                showFlash(data.message, 'success');
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 500);
+            } else {
+                // Show error messages
+                if (data.errors && Array.isArray(data.errors)) {
+                    data.errors.forEach(error => {
+                        showFlash(error, 'error');
+                    });
+                } else if (data.error) {
+                    showFlash(data.error, 'error');
+                }
+            }
+        })
+        .catch(error => {
+            setLoading(false);
+            console.error('Login error:', error);
+            showFlash('An error occurred. Please try again.', 'error');
+        });
+    });
+
+    function validateForm() {
+        let isValid = true;
+
+        // Validate email
+        const email = emailInput.value.trim();
+        if (!email) {
+            showError('email', 'Email is required');
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            showError('email', 'Please enter a valid email address');
+            isValid = false;
+        }
+
+        // Validate password
+        const password = passwordInput.value;
+        if (!password) {
+            showError('password', 'Password is required');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function isValidEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    function showError(field, message) {
+        const input = document.getElementById(field);
+        const errorElement = document.getElementById(field + '-error');
+
+        if (input) {
+            input.classList.add('error');
+        }
+        if (errorElement) {
+            errorElement.textContent = message;
+        }
+    }
+
+    function clearErrors() {
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.classList.remove('error');
+        });
+        document.querySelectorAll('.error-message').forEach(element => {
+            element.textContent = '';
+        });
+    }
+
+    function setLoading(loading) {
+        if (loading) {
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+        } else {
+            loginBtn.classList.remove('loading');
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        }
+    }
+
+    // Auto-focus email field on page load
+    emailInput.focus();
+
+    // Clear error when user starts typing
+    emailInput.addEventListener('input', function() {
+        if (this.classList.contains('error')) {
+            this.classList.remove('error');
+            document.getElementById('email-error').textContent = '';
+        }
+    });
+
+    passwordInput.addEventListener('input', function() {
+        if (this.classList.contains('error')) {
+            this.classList.remove('error');
+            document.getElementById('password-error').textContent = '';
+        }
+    });
+});
+</script>
+{% endblock %}
