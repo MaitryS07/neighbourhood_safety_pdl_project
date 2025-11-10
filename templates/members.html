@@ -1,0 +1,1017 @@
+{% extends "base.html" %}
+
+{% block title %}Member Management - Neighbourhood Safety{% endblock %}
+
+{% block extra_css %}
+<style>
+    .members-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        background: white;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        padding: 0.5rem;
+        min-width: 300px;
+    }
+
+    .search-bar input {
+        border: none;
+        outline: none;
+        flex: 1;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .search-bar button {
+        background: none;
+        border: none;
+        color: #667eea;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .search-bar button:hover {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-outline-primary {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-outline-primary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 2px solid #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .sort-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .sort-controls select {
+        padding: 0.5rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 1rem;
+        background: white;
+    }
+
+    .members-table-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .members-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .members-table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #2c3e50;
+        border-bottom: 2px solid #e1e5e9;
+        white-space: nowrap;
+    }
+
+    .members-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e1e5e9;
+        vertical-align: middle;
+    }
+
+    .members-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .member-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .member-email {
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .member-email:hover {
+        text-decoration: underline;
+    }
+
+    .member-phone {
+        color: #2c3e50;
+        white-space: nowrap;
+    }
+
+    .member-address {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .emergency-info {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+    }
+
+    .emergency-contact {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .member-date {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        white-space: nowrap;
+    }
+
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .action-btn {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .action-btn.edit {
+        color: #667eea;
+    }
+
+    .action-btn.edit:hover {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .action-btn.delete {
+        color: #e74c3c;
+    }
+
+    .action-btn.delete:hover {
+        background: rgba(231, 76, 60, 0.1);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 2rem 0;
+    }
+
+    .pagination a, .pagination span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a {
+        background: white;
+        color: #667eea;
+        border: 2px solid #e1e5e9;
+    }
+
+    .pagination a:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .pagination .current {
+        background: #667eea;
+        color: white;
+        border: 2px solid #667eea;
+    }
+
+    .pagination .disabled {
+        background: #f8f9fa;
+        color: #7f8c8d;
+        border: 2px solid #e1e5e9;
+        cursor: not-allowed;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e1e5e9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #7f8c8d;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: #f8f9fa;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input.error {
+        border-color: #e74c3c;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #e1e5e9;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #7f8c8d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #e1e5e9;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+    }
+
+    .empty-state p {
+        margin: 0 0 2rem 0;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+    }
+
+    .loading i {
+        font-size: 2rem;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .members-container {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .search-bar {
+            min-width: 100%;
+        }
+
+        .filters {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .members-table {
+            font-size: 0.8rem;
+        }
+
+        .members-table th,
+        .members-table td {
+            padding: 0.5rem;
+        }
+
+        .member-address {
+            max-width: 150px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="members-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-users"></i> Member Management</h1>
+        <div class="header-actions">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search members..." value="{{ current_search }}">
+                <button onclick="performSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <button class="btn btn-primary" onclick="showAddMemberModal()">
+                <i class="fas fa-plus"></i> New Member
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-value" id="total-members">0</div>
+            <div class="stat-label">Total Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="recent-members">0</div>
+            <div class="stat-label">Added This Month</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="members-with-phone">0</div>
+            <div class="stat-label">With Phone</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="members-with-emergency">0</div>
+            <div class="stat-label">With Emergency Contact</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="sort-controls">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select" onchange="changeSort()">
+                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
+                <option value="email" {% if current_sort == 'email' %}selected{% endif %}>Email</option>
+                <option value="created_at" {% if current_sort == 'created_at' %}selected{% endif %}>Date Added</option>
+            </select>
+            <select id="order-select" onchange="changeSort()">
+                <option value="asc" {% if current_sort_order == 'asc' %}selected{% endif %}>A-Z</option>
+                <option value="desc" {% if current_sort_order == 'desc' %}selected{% endif %}>Z-A</option>
+            </select>
+        </div>
+        <button class="btn btn-outline-secondary" onclick="exportMembers()">
+            <i class="fas fa-download"></i> Export CSV
+        </button>
+        <button class="btn btn-outline-secondary" onclick="refreshMembers()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+
+    <!-- Members Table -->
+    <div class="members-table-container">
+        <div class="table-responsive">
+            <table class="members-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Emergency Contact</th>
+                        <th>Date Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="members-table-body">
+                    <tr>
+                        <td colspan="7" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading members...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <!-- Pagination will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Member Modal -->
+<div class="modal" id="member-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Add New Member</h2>
+            <button class="modal-close" onclick="closeMemberModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="member-form">
+                <div class="form-group">
+                    <label for="member-name" class="form-label">Name *</label>
+                    <input type="text" id="member-name" class="form-input" required>
+                    <div class="error-message" id="name-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="member-email" class="form-label">Email *</label>
+                    <input type="email" id="member-email" class="form-input" required>
+                    <div class="error-message" id="email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="member-phone" class="form-label">Phone</label>
+                    <input type="tel" id="member-phone" class="form-input" placeholder="(555) 123-4567">
+                    <div class="error-message" id="phone-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="member-address" class="form-label">Address</label>
+                    <input type="text" id="member-address" class="form-input" placeholder="123 Main St, City, State">
+                    <div class="error-message" id="address-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergency-contact" class="form-label">Emergency Contact</label>
+                    <input type="text" id="emergency-contact" class="form-input" placeholder="Contact name">
+                    <div class="error-message" id="emergency-contact-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="emergency-phone" class="form-label">Emergency Phone</label>
+                    <input type="tel" id="emergency-phone" class="form-input" placeholder="(555) 123-4567">
+                    <div class="error-message" id="emergency-phone-error"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeMemberModal()">Cancel</button>
+            <button class="btn btn-primary" id="save-member-btn" onclick="saveMember()">
+                <i class="fas fa-save"></i> Save Member
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentEditingMember = null;
+let currentPage = {{ members_pagination.page if members_pagination else 1 }};
+let currentSearch = '{{ current_search }}';
+let currentSort = '{{ current_sort }}';
+let currentSortOrder = '{{ current_sort_order }}';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadMembers();
+    loadStats();
+});
+
+function loadMembers(page = null) {
+    if (page !== null) {
+        currentPage = page;
+    }
+
+    const params = new URLSearchParams({
+        page: currentPage,
+        search: currentSearch,
+        sort: currentSort,
+        order: currentSortOrder
+    });
+
+    const tbody = document.getElementById('members-table-body');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading members...
+            </td>
+        </tr>
+    `;
+
+    fetch(`/members?${params.toString()}`)
+        .then(response => response.text())
+        .then(html => {
+            // Extract the table body and pagination from the response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newTbody = doc.querySelector('#members-table-body');
+            const newPagination = doc.querySelector('#pagination');
+
+            if (newTbody) {
+                tbody.innerHTML = newTbody.innerHTML;
+            }
+
+            if (newPagination) {
+                document.getElementById('pagination').innerHTML = newPagination.innerHTML;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading members:', error);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: #e74c3c;">
+                        <i class="fas fa-exclamation-triangle"></i> Failed to load members
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+function loadStats() {
+    fetch('/members/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                animateValue('total-members', 0, stats.total_members, 1000);
+                animateValue('recent-members', 0, stats.recent_members, 1000);
+                animateValue('members-with-phone', 0, stats.members_with_phone, 1000);
+                animateValue('members-with-emergency', 0, stats.members_with_emergency, 1000);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading stats:', error);
+        });
+}
+
+function performSearch() {
+    currentSearch = document.getElementById('search-input').value.trim();
+    currentPage = 1;
+    loadMembers();
+}
+
+function changeSort() {
+    currentSort = document.getElementById('sort-select').value;
+    currentSortOrder = document.getElementById('order-select').value;
+    currentPage = 1;
+    loadMembers();
+}
+
+function refreshMembers() {
+    loadMembers();
+    loadStats();
+}
+
+function showAddMemberModal() {
+    currentEditingMember = null;
+    document.getElementById('modal-title').textContent = 'Add New Member';
+    document.getElementById('member-form').reset();
+    clearFormErrors();
+    document.getElementById('member-modal').classList.add('show');
+}
+
+function showEditMemberModal(memberId) {
+    fetch(`/members/${memberId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentEditingMember = data.member;
+                document.getElementById('modal-title').textContent = 'Edit Member';
+
+                // Populate form fields
+                document.getElementById('member-name').value = data.member.name;
+                document.getElementById('member-email').value = data.member.email;
+                document.getElementById('member-phone').value = data.member.phone || '';
+                document.getElementById('member-address').value = data.member.address || '';
+                document.getElementById('emergency-contact').value = data.member.emergency_contact || '';
+                document.getElementById('emergency-phone').value = data.member.emergency_phone || '';
+
+                clearFormErrors();
+                document.getElementById('member-modal').classList.add('show');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading member:', error);
+            showFlash('Failed to load member details', 'error');
+        });
+}
+
+function closeMemberModal() {
+    document.getElementById('member-modal').classList.remove('show');
+    document.getElementById('member-form').reset();
+    clearFormErrors();
+    currentEditingMember = null;
+}
+
+function saveMember() {
+    clearFormErrors();
+
+    const formData = {
+        name: document.getElementById('member-name').value.trim(),
+        email: document.getElementById('member-email').value.trim(),
+        phone: document.getElementById('member-phone').value.trim(),
+        address: document.getElementById('member-address').value.trim(),
+        emergency_contact: document.getElementById('emergency-contact').value.trim(),
+        emergency_phone: document.getElementById('emergency-phone').value.trim()
+    };
+
+    // Validate form
+    const errors = validateMemberForm(formData);
+    if (errors.length > 0) {
+        errors.forEach(error => {
+            showFormError(error.field, error.message);
+        });
+        return;
+    }
+
+    const saveBtn = document.getElementById('save-member-btn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    const url = currentEditingMember ? `/members/${currentEditingMember.id}/update` : '/members/add';
+    const method = 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.content || ''
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Member';
+
+        if (data.success) {
+            showFlash(data.message, 'success');
+            closeMemberModal();
+            loadMembers();
+            loadStats();
+        } else {
+            if (data.errors && Array.isArray(data.errors)) {
+                data.errors.forEach(error => {
+                    showFlash(error, 'error');
+                });
+            } else if (data.error) {
+                showFlash(data.error, 'error');
+            }
+        }
+    })
+    .catch(error => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Member';
+        console.error('Error saving member:', error);
+        showFlash('An error occurred while saving the member', 'error');
+    });
+}
+
+function deleteMember(memberId, memberName) {
+    if (!confirm(`Are you sure you want to delete ${memberName}? This action cannot be undone.`)) {
+        return;
+    }
+
+    fetch(`/members/${memberId}/delete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.content || ''
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showFlash(data.message, 'success');
+            loadMembers();
+            loadStats();
+        } else {
+            showFlash(data.error || 'Failed to delete member', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting member:', error);
+        showFlash('An error occurred while deleting the member', 'error');
+    });
+}
+
+function exportMembers() {
+    window.location.href = '/members/export';
+}
+
+function validateMemberForm(data) {
+    const errors = [];
+
+    if (!data.name) {
+        errors.push({ field: 'name', message: 'Name is required' });
+    } else if (data.name.length < 2) {
+        errors.push({ field: 'name', message: 'Name must be at least 2 characters long' });
+    }
+
+    if (!data.email) {
+        errors.push({ field: 'email', message: 'Email is required' });
+    } else if (!isValidEmail(data.email)) {
+        errors.push({ field: 'email', message: 'Please enter a valid email address' });
+    }
+
+    if (data.phone && !isValidPhone(data.phone)) {
+        errors.push({ field: 'phone', message: 'Please enter a valid phone number' });
+    }
+
+    if (data.emergency_phone && !isValidPhone(data.emergency_phone)) {
+        errors.push({ field: 'emergency-phone', message: 'Please enter a valid emergency phone number' });
+    }
+
+    return errors;
+}
+
+function isValidEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}
+
+function isValidPhone(phone) {
+    const phonePattern = /^[\d\s\-\+\(\)]+$/;
+    return phonePattern.test(phone) && phone.replace(/\D/g, '').length >= 10;
+}
+
+function showFormError(field, message) {
+    const input = document.getElementById(field);
+    const errorElement = document.getElementById(field + '-error');
+
+    if (input) {
+        input.classList.add('error');
+    }
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
+
+function clearFormErrors() {
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.classList.remove('error');
+    });
+    document.querySelectorAll('.error-message').forEach(element => {
+        element.textContent = '';
+    });
+}
+
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+
+    const timer = setInterval(function() {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            obj.textContent = end.toLocaleString();
+            clearInterval(timer);
+        } else {
+            obj.textContent = Math.floor(current).toLocaleString();
+        }
+    }, 16);
+}
+
+// Search on Enter key
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('member-modal').classList.contains('show')) {
+        closeMemberModal();
+    }
+});
+
+// Close modal on outside click
+document.getElementById('member-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeMemberModal();
+    }
+});
+</script>
+{% endblock %}
