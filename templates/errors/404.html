@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - Neighbourhood Safety{% endblock %}
+
+{% block content %}
+<div class="members-container">
+    <div style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 8rem; font-weight: bold; color: #667eea; margin-bottom: 1rem;">
+            404
+        </div>
+        <h1 style="font-size: 2rem; color: #2c3e50; margin-bottom: 1rem;">
+            Page Not Found
+        </h1>
+        <p style="color: #7f8c8d; font-size: 1.1rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            The page you're looking for doesn't exist. It may have been moved, deleted, or you entered the wrong URL.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Go Home
+            </a>
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin() %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('resident.dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Resident Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
