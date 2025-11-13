@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied - Neighbourhood Safety{% endblock %}
+
+{% block content %}
+<div class="members-container">
+    <div style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 8rem; font-weight: bold; color: #f39c12; margin-bottom: 1rem;">
+            403
+        </div>
+        <h1 style="font-size: 2rem; color: #2c3e50; margin-bottom: 1rem;">
+            Access Denied
+        </h1>
+        <p style="color: #7f8c8d; font-size: 1.1rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            You don't have permission to access this page. Please contact your administrator if you believe this is an error.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            {% if current_user.is_authenticated %}
+                {% if current_user.is_admin() %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('resident.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Resident Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Go Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

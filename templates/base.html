@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Neighbourhood Safety{% endblock %}</title>
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{{ url_for('index') }}">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Neighbourhood Safety</span>
+                </a>
+            </div>
+
+            <div class="nav-menu">
+                {% if current_user.is_authenticated %}
+                    <!-- Authenticated user navigation -->
+                    {% if current_user.is_admin() %}
+                        <!-- Admin navigation -->
+                        {% for item in nav_items.admin %}
+                            <a href="{{ url_for(item.endpoint) }}"
+                               class="nav-item {% if is_active_page(item.endpoint) %}active{% endif %}">
+                                <i class="fas fa-{{ item.icon }}"></i>
+                                <span>{{ item.name }}</span>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Resident navigation -->
+                        {% for item in nav_items.resident %}
+                            <a href="{{ url_for(item.endpoint) }}"
+                               class="nav-item {% if is_active_page(item.endpoint) %}active{% endif %}">
+                                <i class="fas fa-{{ item.icon }}"></i>
+                                <span>{{ item.name }}</span>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- User menu -->
+                    <div class="nav-dropdown">
+                        <button class="nav-dropdown-toggle">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ current_user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="nav-dropdown-menu">
+                            <div class="dropdown-user-info">
+                                <strong>{{ current_user.username }}</strong>
+                                <small>{{ current_user.email }}</small>
+                                <span class="user-role">{{ current_user.get_role_display() }}</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('resident.profile') }}">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                            {% if current_user.is_admin() %}
+                                <a href="{{ url_for('admin.users') }}">
+                                    <i class="fas fa-users-cog"></i> Manage Users
+                                </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <form method="POST" action="{{ url_for('auth.logout') }}" class="logout-form">
+                                <button type="submit" class="logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Unauthenticated user navigation -->
+                    {% for item in nav_items.auth %}
+                        <a href="{{ url_for(item.endpoint) }}"
+                           class="nav-item {% if is_active_page(item.endpoint) %}active{% endif %}">
+                            <i class="fas fa-{{ item.icon }}"></i>
+                            <span>{{ item.name }}</span>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu toggle -->
+            <button class="nav-mobile-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}" id="flash-{{ loop.index }}">
+                        <div class="flash-content">
+                            {% if category == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif category == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                            <button class="flash-close" onclick="closeFlash('flash-{{ loop.index }}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Neighbourhood Safety</h4>
+                    <p>Making our community safer together through awareness and cooperation.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{{ url_for('resident.safety_info') }}">Safety Tips</a></li>
+                        <li><a href="{{ url_for('resident.emergency') }}">Emergency Contacts</a></li>
+                        {% if current_user.is_admin() %}
+                            <li><a href="{{ url_for('members.list_members') }}">Member Management</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Emergency</h4>
+                    <p><strong>Emergency Services: 911</strong></p>
+                    <p>For non-emergency assistance, contact local authorities.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Neighbourhood Safety. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Modal Container -->
+    <div class="modal-container" id="modal-container">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Modal Title</h3>
+                <button class="modal-close" id="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Modal content goes here...
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Session timeout handling -->
+    {% if current_user.is_authenticated %}
+    <script>
+        // Session timeout handling
+        let sessionTimeout;
+        const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+        const WARNING_TIMEOUT = 23 * 60 * 60 * 1000; // 23 hours
+
+        function resetSessionTimeout() {
+            clearTimeout(sessionTimeout);
+            sessionTimeout = setTimeout(showSessionWarning, WARNING_TIMEOUT);
+        }
+
+        function showSessionWarning() {
+            if (confirm('Your session will expire in 1 hour. Would you like to extend it?')) {
+                fetch('/auth/extend-session')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resetSessionTimeout();
+                            showFlash('Session extended successfully', 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error extending session:', error);
+                    });
+            }
+        }
+
+        // Reset timeout on user activity
+        document.addEventListener('click', resetSessionTimeout);
+        document.addEventListener('keypress', resetSessionTimeout);
+        document.addEventListener('scroll', resetSessionTimeout);
+
+        // Initialize timeout
+        resetSessionTimeout();
+    </script>
+    {% endif %}
+
+    <!-- Global error handling -->
+    <script>
+        // Global AJAX error handler
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showFlash('An unexpected error occurred. Please try again.', 'error');
+        });
+
+        // Global error handler for AJAX requests
+        window.addEventListener('error', function(event) {
+            console.error('JavaScript error:', event.error);
+            if (event.target !== window) {
+                showFlash('A resource failed to load. Please refresh the page.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
